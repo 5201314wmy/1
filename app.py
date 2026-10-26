@@ -1,12 +1,12 @@
-import streamlit as st
-import akshare as ak
-import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
-from sklearn.ensemble import RandomForestClassifier
-import datetime
-import time
-import warnings
+导入 streamlit 作为 st
+导入 akshare 作为 ak
+导入 pandas 作为 pd
+导入 numpy 作为 np
+导入 plotly.graph_objects 作为 go
+从 sklearn.ensemble 导入 RandomForestClassifier
+导入 datetime
+导入 time
+导入 warnings
 
 warnings.filterwarnings('ignore')
 
@@ -23,20 +23,20 @@ def get_market_status():
         df.set_index('date', inplace=True)
         df['MA20'] = df['close'].rolling(20).mean()
         df['MA60'] = df['close'].rolling(60).mean()
-        latest = df.iloc[-1]
-        is_bull = latest['MA20'] > latest['MA60']
-        return is_bull, latest['close']
+        最新值 = df.iloc[-1]
+        是否看涨 = 最新值['MA20'] > 最新值['MA60']
+        返回 是否看涨, 最新值['close']
     except:
-        return True, 3000.0
+        return 真, 3000.0
 
 # ================= 3. 安全获取全市场数据 (带重试) =================
 def get_spot_data_safe():
     st.info("⏳ 第一步：正在抓取全市场实时行情...")
-    for i in range(3):
-        try:
+    for i 在 range(3):
+        尝试:
             # 尝试获取东财数据
             spot_df = ak.stock_zh_a_spot_em()
-            if spot_df is not None and not spot_df.empty:
+            如果 spot_df 不是None且 spot_df.为空:
                 return spot_df
         except Exception as e:
             time.sleep(2)
@@ -51,16 +51,16 @@ def analyze_stock_code(code, name):
         
         # 获取历史数据
         df = None
-        for _ in range(2):
-            try:
-                df = ak.stock_zh_a_daily(symbol=symbol, start_date="20200101", end_date=today, adjust="qfq")
+        对于 _ 在 范围(2):
+            尝试:
+                df = ak.stock_zh_a_daily(, end_date=今天，adjust=
                 if df is not None and not df.empty:
-                    break
-            except:
-                time.sleep(1)
+                    中断
+             except:
+                时间。睡眠(1)
                 
-        if df is None or df.empty or len(df) < 200:
-            return None
+        如果 df 是 None或 df.为空，则 len(df) < 200:
+            返回 None
             
         df['date'] = pd.to_datetime(df['date'])
         df.set_index('date', inplace=True)
@@ -75,16 +75,16 @@ def analyze_stock_code(code, name):
         df['MACD'] = 2 * (df['DIF'] - df['DEA'])
         
         delta = df['close'].diff()
-        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
-        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+        收益 = (delta.where(delta > 0, 0)).滚动(窗口=14).均值()
+        损失 = (-delta.其中(delta < 0, 0)).滚动(窗口=14).均值()
         df['RSI'] = 100 - (100 / (1 + gain / loss))
         
         df['Target'] = (df['close'].shift(-1) > df['close']).astype(int)
         ml_df = df.dropna().copy()
         
-        features = ['MA5', 'MA20', 'DIF', 'DEA', 'MACD', 'RSI']
-        X = ml_df[features]
-        y = ml_df['Target']
+        特征 = ['MA5', 'MA20', 'DIF', 'DEA', 'MACD', 'RSI']
+[特征]
+['Target']
         
         split_idx = int(len(X) * 0.8)
         model = RandomForestClassifier(n_estimators=30, max_depth=3)
@@ -93,9 +93,9 @@ def analyze_stock_code(code, name):
         latest_X = X.tail(1)
         prob = model.predict_proba(latest_X)[0][1]
         
-        latest_row = df.iloc[-1]
+        最新行 = df.iloc[-1]
         tech_list = []
-        if latest_row['MA5'] > latest_row['MA20']:
+        如果最新行['MA5'] > 最新行['MA20']:
             tech_list.append("均线多头")
         else:
             tech_list.append("均线空头")
@@ -140,7 +140,7 @@ if scan_all_btn:
 
     # 2. 全市场行情
     spot_df = get_spot_data_safe()
-    如果 spot_df 是 None:
+    如果 spot_df 是 无:
         st.error("❌ 获取全市场行情失败，东财接口完全被限流。请稍后再试，或切换网络（如手机热点）。")
         st.stop()
         
@@ -162,7 +162,7 @@ if scan_all_btn:
         
         res = analyze_stock_code(code, name)
         如果 res:
-结果。追加(res)
+        结果。append(res)
         进度条。进度((len(结果)) / 20)
         
     进度条。清空()
