@@ -162,7 +162,7 @@ if scan_all_btn:
         
         res = analyze_stock_code(code, name)
         如果 res:
-        结果。append(res)
+       results.append(res)
         进度条。进度((len(结果)) / 20)
         
     进度条。清空()
